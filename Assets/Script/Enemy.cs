@@ -1,18 +1,23 @@
 using UnityEngine;
+using UnityEngine.Events;
+using System;
+
 
 public class Enemy : MonoBehaviour, IDamageable
 {
-    [SerializeField] private int hp = 100;
+    public static event Action<Enemy> OnZombieMati;
+    [SerializeField] protected int hp = 100;
     public float ms = 2f;
     protected Transform player;
     [Header("Pengaturan State Machine")]
-    [SerializeField] private float jarakDeteksi = 6f;
-    [SerializeField] private float jarakSerang = 1.2f;
+    [SerializeField] protected float jarakDeteksi = 6f;
+    [SerializeField] protected float jarakSerang = 1.2f;
     [SerializeField] private float jedaSerang = 1f;
     private StateZombie state = StateZombie.IDLE;
     private float waktuSerangTerakhir;
     [SerializeField] private Transform[] titikPatroli;
     private int indexPatroli = 0;
+    [SerializeField] private UnityEvent onZombieMatiVisual;
 
     protected virtual void Start()
     {
@@ -82,9 +87,11 @@ public class Enemy : MonoBehaviour, IDamageable
         }
     }
 
-    private void Mati()
+    protected virtual void Mati()
     {
         Debug.Log($"{gameObject.name} mati!");
+        OnZombieMati?.Invoke(this);
+        onZombieMatiVisual?.Invoke();
         Destroy(gameObject);
     }
 
@@ -95,6 +102,7 @@ public class Enemy : MonoBehaviour, IDamageable
     void PerilakuAttack()
     {
         Debug.Log("enemy sedang menyerang");
+
     }
     void PerilakuChase()
     {
